@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Calendar, MapPin } from 'lucide-react';
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const keynoteMeta: BioThemeMeta = {
@@ -42,6 +42,10 @@ export const keynoteMeta: BioThemeMeta = {
     { key: 'tagsText', label: 'Chips (separadas por vírgula)', type: 'textarea', default: 'keynote, fireside, workshop, panel, masterclass', maxLength: 200, rows: 2, group: 'Textos' },
     { key: 'accentCustom', label: 'Cor da banda (personalizada)', type: 'colorPicker', default: '#EF4444', group: 'Cores' },
     { key: 'useAccentCustom', label: 'Usar cor personalizada', type: 'toggle', default: false, group: 'Cores' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'grotesk', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'grotesk', group: 'Tipografia' },
+    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: See you on stage', maxLength: 80, group: 'Textos' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
   ],
 };
 
@@ -86,7 +90,7 @@ export function KeynoteTheme({ profile, links, socials, videos, banners, track }
     : ['keynote', 'fireside', 'workshop', 'panel', 'masterclass'];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: bg, color: text, fontFamily: 'var(--font-space-grotesk), "Helvetica Neue", sans-serif' }}>
+    <div className="min-h-screen" style={{ backgroundColor: bg, color: text, fontFamily: getFontStack(s.bodyFont, 'var(--font-space-grotesk), "Helvetica Neue", sans-serif') }}>
       <div className="max-w-md mx-auto px-5 pt-[72px] pb-24">
         <div className="flex items-center gap-2 text-[10px] tracking-[0.4em] uppercase opacity-70 mb-8">
           <div className="w-2 h-2 rounded-full keynote-live" style={{ background: accent }} aria-hidden />
@@ -95,7 +99,7 @@ export function KeynoteTheme({ profile, links, socials, videos, banners, track }
           <span>{s.seasonLabel || 'Season 2026'}</span>
         </div>
 
-        <h1 className="uppercase leading-[0.88] tracking-tight" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', fontWeight: 900, letterSpacing: '-0.04em', color: text }}>
+        <h1 className="uppercase leading-[0.88] tracking-tight" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', fontWeight: 900, letterSpacing: '-0.04em', color: text, fontFamily: getFontStack(s.titleFont, 'inherit') }}>
           {profile.display_name}
         </h1>
         {profile.bio && (
@@ -143,7 +147,7 @@ export function KeynoteTheme({ profile, links, socials, videos, banners, track }
             <div className="text-[10px] tracking-[0.4em] uppercase opacity-70">Speaker</div>
             <div className="font-semibold">{profile.display_name}</div>
           </div>
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className="ml-auto flex gap-2">
               {socials.slice(0, 3).map((soc: any) => {
                 const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];
@@ -206,6 +210,9 @@ export function KeynoteTheme({ profile, links, socials, videos, banners, track }
           ))}
         </div>
 
+        {s.footerText && s.footerText.trim() && (
+          <div className="mt-10 text-center text-[10px] tracking-[0.4em] uppercase" style={{ color: accent }}>{s.footerText}</div>
+        )}
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
       </div>
 

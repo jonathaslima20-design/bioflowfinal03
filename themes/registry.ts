@@ -1,4 +1,4 @@
-import { BrutalistTheme } from './brutalist';
+import { BrutalistTheme, brutalistMeta } from './brutalist';
 import { AuroraTheme, auroraMeta } from './aurora';
 import { CyberTheme, cyberMeta } from './cyber';
 import { RetrowaveTheme, retrowaveMeta } from './retrowave';
@@ -12,26 +12,7 @@ import { ChromeTheme, chromeMeta } from './chrome';
 import { TerminalTheme, terminalMeta } from './terminal';
 import { ConsultancyTheme, consultancyMeta } from './consultancy';
 import { KeynoteTheme, keynoteMeta } from './keynote';
-import type { BioThemeDefaults, BioThemeDefinition, BioThemeMeta } from './types';
-
-const brutalistMeta: BioThemeMeta = {
-  key: 'brutalist',
-  name: 'Brutalist',
-  description: 'Bordas pretas, sombras duras e cores vibrantes. O visual assinatura do BioFlowzy.',
-  available: true,
-  defaults: {
-    bg_color: '#FFFFFF',
-    button_color: '#FACC15',
-    text_color: '#000000',
-    border_width: 2,
-    shadow_offset: 4,
-  },
-  palettes: {
-    bg: ['#FFFFFF', '#F1F5F9', '#FACC15', '#BEF264', '#FDA4AF', '#000000'],
-    accent: ['#FACC15', '#BEF264', '#2563EB', '#EF4444', '#F97316', '#000000', '#FFFFFF'],
-    text: ['#000000', '#111827', '#FFFFFF', '#1E293B'],
-  },
-};
+import type { BioThemeDefaults, BioThemeDefinition } from './types';
 
 export const THEMES: Record<string, BioThemeDefinition> = {
   brutalist: { meta: brutalistMeta, component: BrutalistTheme },

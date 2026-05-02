@@ -3,7 +3,7 @@
 import { ArrowRight, ChevronRight, Star, Zap, Clock, Users, Flame } from 'lucide-react';
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const conversionMeta: BioThemeMeta = {
@@ -78,6 +78,12 @@ export const conversionMeta: BioThemeMeta = {
     { key: 'ctaLabel', label: 'Rótulo das CTAs', type: 'text', default: '', placeholder: 'Ex: QUERO AGORA', maxLength: 32, group: 'Textos' },
     { key: 'accentCustom', label: 'Cor de destaque (hex livre)', type: 'colorPicker', default: '#EA580C', group: 'Cores' },
     { key: 'useAccentCustom', label: 'Usar cor personalizada', type: 'toggle', default: false, group: 'Cores' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'showUrgency', label: 'Exibir barra de urgência', type: 'toggle', default: true, group: 'Elementos' },
+    { key: 'showSocials', label: 'Exibir redes sociais', type: 'toggle', default: true, group: 'Elementos' },
+    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: Garantia de 7 dias', maxLength: 80, group: 'Textos' },
+    { key: 'starColor', label: 'Cor das estrelas', type: 'colorPicker', default: '#FACC15', group: 'Cores' },
   ],
 };
 
@@ -142,10 +148,10 @@ export function ConversionTheme({ profile, links, socials, videos, banners, trac
       style={{
         background: profile.bg_color && s.gradient === 'minimal' ? profile.bg_color : g.bg,
         color: text,
-        fontFamily: 'var(--font-inter), system-ui',
+        fontFamily: getFontStack(s.bodyFont, 'var(--font-inter), system-ui'),
       }}
     >
-      {s.urgencyBar && (
+      {s.urgencyBar && s.showUrgency !== false && (
         <div
           className="w-full py-2.5 text-center text-xs font-bold tracking-wider flex items-center justify-center gap-2 conv-urgency"
           style={{ background: accent, color: '#FFFFFF' }}
@@ -176,7 +182,7 @@ export function ConversionTheme({ profile, links, socials, videos, banners, trac
 
           <h1
             className="mt-4 text-3xl leading-tight"
-            style={{ color: text, fontWeight: 900, letterSpacing: '-0.03em' }}
+            style={{ color: text, fontWeight: 900, letterSpacing: '-0.03em', fontFamily: getFontStack(s.titleFont, 'var(--font-inter), system-ui') }}
           >
             {profile.display_name}
           </h1>
@@ -185,7 +191,7 @@ export function ConversionTheme({ profile, links, socials, videos, banners, trac
             <div className="mt-4 flex items-center gap-2">
               <div className="flex">
                 {[0, 1, 2, 3, 4].map((i) => (
-                  <Star key={i} className="w-4 h-4" fill="#FACC15" style={{ color: '#FACC15' }} />
+                  <Star key={i} className="w-4 h-4" fill={s.starColor || '#FACC15'} style={{ color: s.starColor || '#FACC15' }} />
                 ))}
               </div>
               <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: text }}>
@@ -204,7 +210,7 @@ export function ConversionTheme({ profile, links, socials, videos, banners, trac
             </p>
           )}
 
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className="mt-5 flex gap-2 flex-wrap justify-center">
               {socials.map((soc: any) => {
                 const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];
@@ -348,6 +354,9 @@ export function ConversionTheme({ profile, links, socials, videos, banners, trac
             </div>
           ))}
         </div>
+        {s.footerText && s.footerText.trim() && (
+          <div className="mt-6 text-center text-xs font-semibold" style={{ color: text, opacity: 0.7 }}>{s.footerText}</div>
+        )}
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
       </div>
 

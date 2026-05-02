@@ -3,7 +3,7 @@
 import { ChevronRight } from 'lucide-react';
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const chromeMeta: BioThemeMeta = {
@@ -32,6 +32,11 @@ export const chromeMeta: BioThemeMeta = {
     { key: 'accentCustom', label: 'Cor de destaque (hex livre)', type: 'colorPicker', default: '#60A5FA', group: 'Ambiente' },
     { key: 'useAccentCustom', label: 'Usar destaque personalizado', type: 'toggle', default: false, group: 'Ambiente' },
     { key: 'tagline', label: 'Frase abaixo do nome', type: 'text', default: '', placeholder: 'Ex: Design Engineer', maxLength: 80, group: 'Textos' },
+    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: Made with light', maxLength: 80, group: 'Textos' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
+    { key: 'cardRadius', label: 'Raio dos cards', type: 'slider', min: 8, max: 32, step: 2, suffix: 'px', default: 16, group: 'Layout' },
   ],
 };
 
@@ -47,7 +52,7 @@ export function ChromeTheme({ profile, links, socials, videos, banners, track }:
   const springTiming = s.spring ? 'cubic-bezier(0.34, 1.56, 0.64, 1)' : 'cubic-bezier(0.4, 0, 0.2, 1)';
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: bg, color: text }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: bg, color: text, fontFamily: getFontStack(s.bodyFont, 'system-ui') }}>
       <div className="absolute inset-0 pointer-events-none" aria-hidden style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${ambient}44, transparent), radial-gradient(ellipse 60% 40% at 20% 100%, ${ambient}22, transparent)` }} />
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full pointer-events-none" aria-hidden style={{ background: ambient, filter: 'blur(120px)', opacity: 0.25 }} />
 
@@ -61,7 +66,7 @@ export function ChromeTheme({ profile, links, socials, videos, banners, track }:
             </div>
           </div>
           {profile.display_name && (
-            <h1 className="mt-6 text-4xl tracking-tight" style={{ fontWeight: 600, color: text, letterSpacing: '-0.03em' }}>
+            <h1 className="mt-6 text-4xl tracking-tight" style={{ fontWeight: 600, color: text, letterSpacing: '-0.03em', fontFamily: getFontStack(s.titleFont, 'system-ui') }}>
               {profile.display_name}
             </h1>
           )}
@@ -70,7 +75,7 @@ export function ChromeTheme({ profile, links, socials, videos, banners, track }:
           )}
           {profile.bio && <p className="mt-3 text-[15px] opacity-80 max-w-xs leading-relaxed">{profile.bio}</p>}
 
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className="mt-6 flex gap-2 flex-wrap justify-center">
               {socials.map((soc: any) => {
                 const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];
@@ -97,8 +102,9 @@ export function ChromeTheme({ profile, links, socials, videos, banners, track }:
         <div className="mt-8 flex flex-col gap-3">
           {links.map((l: any, i: number) => (
             <a key={l.id} href={l.url} target="_blank" rel="noreferrer" onClick={() => t('link', l.id)}
-              className="relative group rounded-2xl px-5 py-4 flex items-center justify-between chrome-card overflow-hidden"
+              className="relative group px-5 py-4 flex items-center justify-between chrome-card overflow-hidden"
               style={{
+                borderRadius: s.cardRadius ?? 16,
                 background: 'rgba(255,255,255,0.06)',
                 backdropFilter: `blur(${s.blur}px) saturate(180%)`,
                 WebkitBackdropFilter: `blur(${s.blur}px) saturate(180%)`,
@@ -143,6 +149,9 @@ export function ChromeTheme({ profile, links, socials, videos, banners, track }:
           ))}
         </div>
 
+        {s.footerText && s.footerText.trim() && (
+          <div className="mt-8 text-center text-xs tracking-widest opacity-70">{s.footerText}</div>
+        )}
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
       </div>
 

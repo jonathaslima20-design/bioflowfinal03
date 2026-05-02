@@ -3,7 +3,7 @@
 import { Zap } from 'lucide-react';
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const neonlabMeta: BioThemeMeta = {
@@ -37,6 +37,10 @@ export const neonlabMeta: BioThemeMeta = {
     { key: 'accentCustom', label: 'Cor de destaque (hex livre)', type: 'colorPicker', default: '#FF2D95', group: 'Neon' },
     { key: 'useAccentCustom', label: 'Usar cor de destaque personalizada', type: 'toggle', default: false, group: 'Neon' },
     { key: 'tagline', label: 'Frase neon (acima do nome)', type: 'text', default: '', placeholder: 'Ex: NEON LAB', maxLength: 40, group: 'Textos' },
+    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: SYSTEM ONLINE', maxLength: 60, group: 'Textos' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'grotesk', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
   ],
 };
 
@@ -52,7 +56,7 @@ export function NeonLabTheme({ profile, links, socials, videos, banners, track }
   const t = (a: string, b: string | null) => track?.(a, b);
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: bg, color: text }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: bg, color: text, fontFamily: getFontStack(s.bodyFont, 'system-ui') }}>
       {s.grid && (
         <div className="absolute inset-x-0 bottom-0 h-[55vh] pointer-events-none" aria-hidden style={{
           background: `linear-gradient(to top, ${accent}33, transparent), repeating-linear-gradient(to right, transparent 0 80px, ${secondary}44 80px 81px), repeating-linear-gradient(to bottom, transparent 0 80px, ${secondary}44 80px 81px)`,
@@ -101,7 +105,7 @@ export function NeonLabTheme({ profile, links, socials, videos, banners, track }
             </div>
           )}
           <h1 className="mt-6 text-4xl uppercase tracking-tight" style={{
-            fontFamily: 'var(--font-space-grotesk), monospace',
+            fontFamily: getFontStack(s.titleFont, 'var(--font-space-grotesk), monospace'),
             fontWeight: 800,
             color: text,
             textShadow: `0 0 ${s.glow / 3}px ${accent}, 0 0 ${s.glow * 0.6}px ${accent}AA`,
@@ -110,7 +114,7 @@ export function NeonLabTheme({ profile, links, socials, videos, banners, track }
           </h1>
           {profile.bio && <p className="mt-3 text-sm opacity-90 max-w-xs leading-relaxed">{profile.bio}</p>}
 
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className="mt-6 flex gap-2 flex-wrap justify-center">
               {socials.map((soc: any) => {
                 const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];
@@ -168,6 +172,9 @@ export function NeonLabTheme({ profile, links, socials, videos, banners, track }
           ))}
         </div>
 
+        {s.footerText && s.footerText.trim() && (
+          <div className="mt-8 text-center text-[11px] tracking-[0.4em] uppercase" style={{ color: secondary, textShadow: `0 0 8px ${secondary}` }}>{s.footerText}</div>
+        )}
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
       </div>
 

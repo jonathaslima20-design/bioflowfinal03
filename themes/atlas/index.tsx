@@ -3,7 +3,7 @@
 import { ArrowRight, Circle, BadgeCheck } from 'lucide-react';
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const atlasMeta: BioThemeMeta = {
@@ -54,6 +54,13 @@ export const atlasMeta: BioThemeMeta = {
     { key: 'useStatusColorCustom', label: 'Usar cor personalizada de status', type: 'toggle', default: false, group: 'Cores' },
     { key: 'accentCustom', label: 'Cor de destaque (hex livre)', type: 'colorPicker', default: '#2563EB', group: 'Cores' },
     { key: 'useAccentCustom', label: 'Usar cor personalizada de destaque', type: 'toggle', default: false, group: 'Cores' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'cardBgCustom', label: 'Cor de fundo dos cards', type: 'colorPicker', default: '#FFFFFF', group: 'Cores' },
+    { key: 'useCardBgCustom', label: 'Usar cor personalizada de card', type: 'toggle', default: false, group: 'Cores' },
+    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: Based in Lisbon', maxLength: 80, group: 'Textos' },
+    { key: 'sectionTitle', label: 'Título da seção de links', type: 'text', default: '', placeholder: 'Ex: Links úteis', maxLength: 40, group: 'Textos' },
+    { key: 'showVerified', label: 'Mostrar selo verificado', type: 'toggle', default: true, group: 'Elementos' },
   ],
 };
 
@@ -92,7 +99,9 @@ export function AtlasTheme({ profile, links, socials, videos, banners, track }: 
   const shadow = SHADOWS[s.shadow] || SHADOWS.soft;
   const t = (a: string, b: string | null) => track?.(a, b);
 
-  const sansFamily = 'var(--font-inter), "Helvetica Neue", Arial, sans-serif';
+  const sansFamily = getFontStack(s.bodyFont, 'var(--font-inter), "Helvetica Neue", Arial, sans-serif');
+  const titleFamily = getFontStack(s.titleFont, sansFamily);
+  const cardBg = s.useCardBgCustom && s.cardBgCustom ? s.cardBgCustom : '#FFFFFF';
 
   const cardBase = (primary: boolean) => {
     if (primary || s.cardStyle === 'primary') {
@@ -104,7 +113,7 @@ export function AtlasTheme({ profile, links, socials, videos, banners, track }: 
     }
     if (s.cardStyle === 'filled') {
       return {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: cardBg,
         border: `1px solid ${text}14`,
         color: text,
       };
@@ -146,11 +155,11 @@ export function AtlasTheme({ profile, links, socials, videos, banners, track }: 
           <div className="mt-5 flex items-center gap-1.5">
             <h1
               className="text-2xl tracking-tight"
-              style={{ color: text, fontWeight: 700, letterSpacing: '-0.02em' }}
+              style={{ color: text, fontWeight: 700, letterSpacing: '-0.02em', fontFamily: titleFamily }}
             >
               {profile.display_name}
             </h1>
-            {s.verified && (
+            {s.verified && s.showVerified !== false && (
               <BadgeCheck className="w-[18px] h-[18px]" style={{ color: accent }} fill={`${accent}22`} strokeWidth={2} />
             )}
           </div>
@@ -224,6 +233,11 @@ export function AtlasTheme({ profile, links, socials, videos, banners, track }: 
           )}
         </div>
 
+        {s.sectionTitle && s.sectionTitle.trim() && (
+          <div className="mb-3 text-xs font-semibold uppercase tracking-widest opacity-70" style={{ color: text }}>
+            {s.sectionTitle}
+          </div>
+        )}
         <div className={`flex flex-col ${d.gap} pb-10`}>
           {links.map((l: any, i: number) => {
             const isPrimary = i === 0 && s.cardStyle !== 'primary';
@@ -319,6 +333,9 @@ export function AtlasTheme({ profile, links, socials, videos, banners, track }: 
             </div>
           ))}
         </div>
+        {s.footerText && s.footerText.trim() && (
+          <div className="mt-2 mb-6 text-center text-xs opacity-60" style={{ color: text }}>{s.footerText}</div>
+        )}
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
       </div>
 

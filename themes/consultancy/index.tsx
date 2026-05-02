@@ -2,7 +2,7 @@
 
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const consultancyMeta: BioThemeMeta = {
@@ -35,6 +35,11 @@ export const consultancyMeta: BioThemeMeta = {
     { key: 'stampText', label: 'Texto da estampa', type: 'text', default: 'Confidential', maxLength: 24, group: 'Textos' },
     { key: 'accentCustom', label: 'Cor de destaque (hex livre)', type: 'colorPicker', default: '#E11D22', group: 'Selo' },
     { key: 'useAccentCustom', label: 'Usar cor personalizada', type: 'toggle', default: false, group: 'Selo' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'footerRight', label: 'Texto do rodapé (direita)', type: 'text', default: 'Strictly Private', maxLength: 40, group: 'Textos' },
+    { key: 'sectionLabel', label: 'Título da seção de links', type: 'text', default: 'Key Resources', maxLength: 40, group: 'Textos' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
   ],
 };
 
@@ -56,7 +61,7 @@ export function ConsultancyTheme({ profile, links, socials, videos, banners, tra
   const alignClass = s.heroAlign === 'center' ? 'text-center items-center' : 'text-left items-start';
 
   return (
-    <div className="min-h-screen relative" style={{ backgroundColor: bg, color: text, fontFamily: '"Helvetica Neue", Arial, sans-serif' }}>
+    <div className="min-h-screen relative" style={{ backgroundColor: bg, color: text, fontFamily: getFontStack(s.bodyFont, '"Helvetica Neue", Arial, sans-serif') }}>
       {s.stamp && (
         <div className="fixed top-24 right-4 z-10 pointer-events-none rotate-[-12deg]" aria-hidden>
           <div className="px-3 py-1 text-[10px] tracking-[0.4em] uppercase font-bold" style={{ border: `2px solid ${accent}`, color: accent, opacity: 0.4 }}>{s.stampText || 'Confidential'}</div>
@@ -75,7 +80,7 @@ export function ConsultancyTheme({ profile, links, socials, videos, banners, tra
             {profile.avatar_url && <img src={profile.avatar_url} alt="" className="w-full h-full object-cover grayscale" />}
           </div>
           <div className="mt-6 text-[10px] tracking-[0.5em] uppercase" style={{ color: accent, fontWeight: 700 }}>{s.roleLabel || 'Partner · Strategy'}</div>
-          <h1 className="mt-2 text-5xl leading-[0.9] tracking-tight" style={{ fontWeight: 900, letterSpacing: '-0.035em', fontStretch: 'condensed' }}>
+          <h1 className="mt-2 text-5xl leading-[0.9] tracking-tight" style={{ fontWeight: 900, letterSpacing: '-0.035em', fontStretch: 'condensed', fontFamily: getFontStack(s.titleFont, 'inherit') }}>
             {profile.display_name}
           </h1>
           {profile.bio && (
@@ -84,7 +89,7 @@ export function ConsultancyTheme({ profile, links, socials, videos, banners, tra
             </p>
           )}
 
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className={`mt-6 flex gap-5 flex-wrap ${s.heroAlign === 'center' ? 'justify-center' : ''}`}>
               {socials.map((soc: any) => {
                 const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];
@@ -102,7 +107,7 @@ export function ConsultancyTheme({ profile, links, socials, videos, banners, tra
 
         <div className="mt-12 flex items-baseline gap-3 pb-2 border-b" style={{ borderColor: text }}>
           <div className="text-[10px] tracking-[0.5em] uppercase font-bold" style={{ color: accent }}>Section</div>
-          <div className="flex-1 text-xs tracking-[0.4em] uppercase opacity-60">Key Resources</div>
+          <div className="flex-1 text-xs tracking-[0.4em] uppercase opacity-60">{s.sectionLabel || 'Key Resources'}</div>
           <div className="text-[10px] opacity-60">{String(links.length).padStart(2, '0')}</div>
         </div>
 
@@ -142,7 +147,7 @@ export function ConsultancyTheme({ profile, links, socials, videos, banners, tra
 
         <div className="mt-12 pt-6 border-t-2 text-[10px] tracking-[0.4em] uppercase opacity-60 flex justify-between" style={{ borderColor: text }}>
           <span>&copy; {new Date().getFullYear()} {profile.display_name || ''}</span>
-          <span style={{ color: accent }}>Strictly Private</span>
+          <span style={{ color: accent }}>{s.footerRight || 'Strictly Private'}</span>
         </div>
 
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}

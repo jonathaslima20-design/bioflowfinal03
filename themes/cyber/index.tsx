@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const cyberMeta: BioThemeMeta = {
@@ -46,6 +46,11 @@ export const cyberMeta: BioThemeMeta = {
     { key: 'useAccentCustom', label: 'Usar cor personalizada', type: 'toggle', default: false, group: 'Cores' },
     { key: 'promptCustom', label: 'Cor do prompt (hex livre)', type: 'colorPicker', default: '#4ADE80', group: 'Cores' },
     { key: 'usePromptCustom', label: 'Usar prompt personalizado', type: 'toggle', default: false, group: 'Cores' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'jetbrains', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'jetbrains', group: 'Tipografia' },
+    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: -- EOF --', maxLength: 60, group: 'Textos' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
+    { key: 'statusText', label: 'Texto da status bar', type: 'text', default: 'CONN: SECURE / TLS 1.3', maxLength: 40, group: 'Textos' },
   ],
 };
 
@@ -86,7 +91,7 @@ export function CyberTheme({ profile, links, socials, videos, banners, track }: 
       style={{
         backgroundColor: profile.bg_color || '#030712',
         color: profile.text_color,
-        fontFamily: 'var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace',
+        fontFamily: getFontStack(s.bodyFont, 'var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace'),
       }}
     >
       {s.scanlines && (
@@ -141,7 +146,7 @@ export function CyberTheme({ profile, links, socials, videos, banners, track }: 
             <div className="text-[10px] opacity-70" style={{ color: promptColor }}>{s.userLabel || 'USER_PROFILE'}</div>
             <h1
               className="text-2xl mt-1 truncate cyber-glitch"
-              style={{ color: profile.text_color, fontWeight: 700, textShadow: `0 0 8px ${accent}55` }}
+              style={{ color: profile.text_color, fontWeight: 700, textShadow: `0 0 8px ${accent}55`, fontFamily: getFontStack(s.titleFont, 'inherit') }}
               data-text={profile.display_name || ''}
             >
               {profile.display_name}
@@ -150,7 +155,7 @@ export function CyberTheme({ profile, links, socials, videos, banners, track }: 
           </div>
         </div>
 
-        {socials?.length > 0 && (
+        {s.showSocials !== false && socials?.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2 text-[10px]">
             {socials.map((soc: any) => {
               const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];
@@ -247,6 +252,9 @@ export function CyberTheme({ profile, links, socials, videos, banners, track }: 
           </div>
         )}
 
+        {s.footerText && s.footerText.trim() && (
+          <div className="mt-6 text-center text-[10px] tracking-widest" style={{ color: promptColor }}>{s.footerText}</div>
+        )}
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
         <div aria-hidden className="h-20" />
       </div>
@@ -256,7 +264,7 @@ export function CyberTheme({ profile, links, socials, videos, banners, track }: 
           className="fixed bottom-0 left-0 right-0 px-4 py-1.5 text-[10px] flex items-center justify-between"
           style={{ backgroundColor: '#000000', borderTop: `1px solid ${promptColor}66`, color: promptColor, fontFamily: 'inherit' }}
         >
-          <span>CONN: SECURE / TLS 1.3</span>
+          <span>{s.statusText || 'CONN: SECURE / TLS 1.3'}</span>
           <span>{mounted ? clock : '00:00:00'}</span>
           <span>MEM: 42% / CPU: 18%</span>
         </div>

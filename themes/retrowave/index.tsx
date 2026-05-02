@@ -2,7 +2,7 @@
 
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const retrowaveMeta: BioThemeMeta = {
@@ -37,6 +37,10 @@ export const retrowaveMeta: BioThemeMeta = {
     { key: 'footerText', label: 'Rodapé neon', type: 'text', default: '', placeholder: 'Ex: STAY RETRO', maxLength: 40, group: 'Textos' },
     { key: 'accentCustom', label: 'Cor de destaque (hex livre)', type: 'colorPicker', default: '#F472B6', group: 'Cores' },
     { key: 'useAccentCustom', label: 'Usar cor personalizada', type: 'toggle', default: false, group: 'Cores' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'archivo', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
+    { key: 'showPalms', label: 'Mostrar palmeiras', type: 'toggle', default: true, group: 'Elementos' },
   ],
 };
 
@@ -60,7 +64,7 @@ export function RetrowaveTheme({ profile, links, socials, videos, banners, track
   return (
     <div
       className="min-h-screen relative overflow-hidden"
-      style={{ backgroundColor: profile.bg_color || '#0B0324', color: profile.text_color, fontFamily: 'var(--font-inter), system-ui' }}
+      style={{ backgroundColor: profile.bg_color || '#0B0324', color: profile.text_color, fontFamily: getFontStack(s.bodyFont, 'var(--font-inter), system-ui') }}
     >
       <div
         className="absolute inset-x-0 top-0 pointer-events-none"
@@ -108,7 +112,7 @@ export function RetrowaveTheme({ profile, links, socials, videos, banners, track
         />
       </div>
 
-      {s.palms && (
+      {s.palms && s.showPalms !== false && (
         <>
           <div className="absolute left-3 bottom-8 pointer-events-none retro-palm" aria-hidden>
             <PalmSVG color="#000000" />
@@ -153,6 +157,7 @@ export function RetrowaveTheme({ profile, links, socials, videos, banners, track
           <h1
             className="mt-5 text-4xl tracking-tight retro-chrome"
             style={{
+              fontFamily: getFontStack(s.titleFont, 'var(--font-archivo), system-ui'),
               fontWeight: 900,
               letterSpacing: '-0.02em',
               background: `linear-gradient(180deg, #FFFFFF 0%, ${pal.c} 20%, ${pal.b} 50%, ${pal.a} 75%, #FFFFFF 100%)`,
@@ -167,7 +172,7 @@ export function RetrowaveTheme({ profile, links, socials, videos, banners, track
           </h1>
           {profile.bio && <p className="mt-3 text-sm opacity-95 max-w-xs" style={{ color: profile.text_color, textShadow: '0 0 6px rgba(0,0,0,0.7)' }}>{profile.bio}</p>}
 
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className="mt-5 flex gap-2 flex-wrap justify-center">
               {socials.map((soc: any) => {
                 const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];

@@ -3,7 +3,7 @@
 import { Sparkles, Heart, Star, Zap } from 'lucide-react';
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const creatorMeta: BioThemeMeta = {
@@ -59,6 +59,10 @@ export const creatorMeta: BioThemeMeta = {
     { key: 'useAccentCustom', label: 'Usar cor personalizada', type: 'toggle', default: false, group: 'Cores' },
     { key: 'highlightCustom', label: 'Cor do marca-texto (hex livre)', type: 'colorPicker', default: '#FDE047', group: 'Titulo' },
     { key: 'useHighlightCustom', label: 'Usar marca-texto personalizado', type: 'toggle', default: false, group: 'Titulo' },
+    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: Feito com amor', maxLength: 80, group: 'Textos' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'dmsans', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'dmsans', group: 'Tipografia' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
   ],
 };
 
@@ -134,7 +138,7 @@ export function CreatorTheme({ profile, links, socials, videos, banners, track }
       style={{
         backgroundColor: bg,
         color: text,
-        fontFamily: 'var(--font-dmsans), var(--font-inter), system-ui',
+        fontFamily: getFontStack(s.bodyFont, 'var(--font-dmsans), var(--font-inter), system-ui'),
         backgroundImage: `radial-gradient(circle at 20% 15%, ${accent}22, transparent 45%), radial-gradient(circle at 85% 85%, #5EEAD433, transparent 45%), radial-gradient(circle at 80% 20%, #FDE04733, transparent 40%)`,
       }}
     >
@@ -189,7 +193,7 @@ export function CreatorTheme({ profile, links, socials, videos, banners, track }
 
           <h1
             className="mt-6 text-4xl leading-tight"
-            style={{ color: text, fontWeight: 900, letterSpacing: '-0.03em' }}
+            style={{ color: text, fontWeight: 900, letterSpacing: '-0.03em', fontFamily: getFontStack(s.titleFont, 'inherit') }}
           >
             {s.highlight ? (
               <span
@@ -217,7 +221,7 @@ export function CreatorTheme({ profile, links, socials, videos, banners, track }
             </p>
           )}
 
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className="mt-5 flex gap-2.5 flex-wrap justify-center">
               {socials.map((soc: any, i: number) => {
                 const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];
@@ -345,6 +349,9 @@ export function CreatorTheme({ profile, links, socials, videos, banners, track }
             </div>
           ))}
         </div>
+        {s.footerText && s.footerText.trim() && (
+          <div className="mt-6 text-center text-xs font-bold" style={{ color: text, opacity: 0.75 }}>{s.footerText}</div>
+        )}
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
       </div>
 

@@ -3,7 +3,7 @@
 import { ExternalLink } from 'lucide-react';
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const auroraMeta: BioThemeMeta = {
@@ -38,6 +38,12 @@ export const auroraMeta: BioThemeMeta = {
     { key: 'accentCustom', label: 'Cor de destaque (hex livre)', type: 'colorPicker', default: '#7DD3FC', group: 'Aurora' },
     { key: 'useAccentCustom', label: 'Usar cor personalizada de destaque', type: 'toggle', default: false, group: 'Aurora' },
     { key: 'tagline', label: 'Frase abaixo do nome', type: 'text', default: '', placeholder: 'Ex: Designer & Curator', maxLength: 80, group: 'Textos' },
+    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: Crafted in glass', maxLength: 80, group: 'Textos' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'glassOpacity', label: 'Opacidade do glass', type: 'slider', min: 4, max: 30, step: 2, suffix: '%', default: 12, group: 'Efeitos' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
+    { key: 'cardRadius', label: 'Raio dos cards', type: 'slider', min: 8, max: 32, step: 2, suffix: 'px', default: 16, group: 'Layout' },
   ],
 };
 
@@ -53,7 +59,7 @@ export function AuroraTheme({ profile, links, socials, videos, banners, track }:
   const tiltClass = s.tilt3d ? 'aurora-tilt' : '';
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: bg, color: profile.text_color }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: bg, color: profile.text_color, ['--aurora-radius' as any]: `${s.cardRadius ?? 16}px` }}>
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -74,7 +80,7 @@ export function AuroraTheme({ profile, links, socials, videos, banners, track }:
         aria-hidden
       />
 
-      <div className="relative max-w-md mx-auto px-5 pt-[72px] pb-24" style={{ fontFamily: 'var(--font-inter), system-ui' }}>
+      <div className="relative max-w-md mx-auto px-5 pt-[72px] pb-24" style={{ fontFamily: getFontStack(s.bodyFont, 'var(--font-inter), system-ui') }}>
         <div className="flex flex-col items-center text-center">
           <div className="relative" style={{ width: profile.avatar_size ?? 110, height: profile.avatar_size ?? 110 }}>
             <div
@@ -85,7 +91,7 @@ export function AuroraTheme({ profile, links, socials, videos, banners, track }:
             </div>
           </div>
           {profile.display_name && (
-            <h1 className="mt-5 text-3xl tracking-tight" style={{ color: profile.text_color, fontWeight: 700, letterSpacing: '-0.03em' }}>
+            <h1 className="mt-5 text-3xl tracking-tight" style={{ color: profile.text_color, fontWeight: 700, letterSpacing: '-0.03em', fontFamily: getFontStack(s.titleFont, 'var(--font-inter), system-ui') }}>
               {profile.display_name}
             </h1>
           )}
@@ -94,7 +100,7 @@ export function AuroraTheme({ profile, links, socials, videos, banners, track }:
           )}
           {profile.bio && <p className="mt-3 text-sm opacity-80 max-w-xs leading-relaxed" style={{ color: profile.text_color }}>{profile.bio}</p>}
 
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className="mt-6 flex gap-2 flex-wrap justify-center">
               {socials.map((soc: any) => {
                 const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];
@@ -132,7 +138,7 @@ export function AuroraTheme({ profile, links, socials, videos, banners, track }:
               target="_blank"
               rel="noreferrer"
               onClick={() => t('link', l.id)}
-              className={`group relative px-5 py-4 rounded-2xl flex items-center justify-between transition-all ${tiltClass}`}
+              className={`group relative px-5 py-4 rounded-[var(--aurora-radius)] flex items-center justify-between transition-all ${tiltClass}`}
               style={{
                 background: `linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))`,
                 backdropFilter: `blur(${s.blur}px) saturate(${s.saturation}%)`,
@@ -145,7 +151,7 @@ export function AuroraTheme({ profile, links, socials, videos, banners, track }:
               <span className="font-medium">{l.title}</span>
               <ExternalLink className="w-4 h-4 opacity-60" />
               <span
-                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                className="absolute inset-0 rounded-[var(--aurora-radius)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
                 style={{ background: `linear-gradient(135deg, ${accent}22, transparent 60%)` }}
                 aria-hidden
               />
@@ -155,7 +161,7 @@ export function AuroraTheme({ profile, links, socials, videos, banners, track }:
           {banners?.map((b: any) => {
             const inner = (
               <div
-                className={`rounded-2xl overflow-hidden ${BANNER_H[b.size] || BANNER_H.md}`}
+                className={`rounded-[var(--aurora-radius)] overflow-hidden ${BANNER_H[b.size] || BANNER_H.md}`}
                 style={{
                   border: '1px solid rgba(255,255,255,0.18)',
                   boxShadow: `0 8px 32px rgba(0,0,0,0.35)`,
@@ -174,7 +180,7 @@ export function AuroraTheme({ profile, links, socials, videos, banners, track }:
           {videos.map((v: any) => (
             <div
               key={v.id}
-              className="rounded-2xl overflow-hidden"
+              className="rounded-[var(--aurora-radius)] overflow-hidden"
               style={{ border: '1px solid rgba(255,255,255,0.18)', boxShadow: `0 8px 32px rgba(0,0,0,0.35)`, background: 'rgba(0,0,0,0.3)' }}
             >
               <div className="relative aspect-video bg-black">
@@ -189,6 +195,9 @@ export function AuroraTheme({ profile, links, socials, videos, banners, track }:
           ))}
         </div>
 
+        {s.footerText && s.footerText.trim() && (
+          <div className="mt-8 text-center text-xs tracking-widest opacity-70" style={{ color: profile.text_color }}>{s.footerText}</div>
+        )}
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
         <div aria-hidden className="h-16" />
       </div>

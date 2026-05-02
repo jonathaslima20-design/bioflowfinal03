@@ -34,15 +34,24 @@ export type BioThemeDefaults = {
   shadow_offset?: number;
 };
 
+type BaseControl = {
+  key: string;
+  label: string;
+  group?: string;
+  category?: 'cores' | 'tipografia' | 'layout' | 'textos' | 'efeitos' | 'geral';
+  help?: string;
+};
+
 export type ControlDef =
-  | { key: string; label: string; type: 'slider'; min: number; max: number; step?: number; suffix?: string; default: number; group?: string }
-  | { key: string; label: string; type: 'toggle'; default: boolean; group?: string }
-  | { key: string; label: string; type: 'select'; options: { value: string; label: string }[]; default: string; group?: string }
-  | { key: string; label: string; type: 'color'; palette: string[]; default: string; group?: string; allowCustom?: boolean }
-  | { key: string; label: string; type: 'colorPicker'; default: string; group?: string }
-  | { key: string; label: string; type: 'radio'; options: { value: string; label: string }[]; default: string; group?: string }
-  | { key: string; label: string; type: 'text'; default: string; placeholder?: string; maxLength?: number; group?: string }
-  | { key: string; label: string; type: 'textarea'; default: string; placeholder?: string; maxLength?: number; rows?: number; group?: string };
+  | (BaseControl & { type: 'slider'; min: number; max: number; step?: number; suffix?: string; default: number })
+  | (BaseControl & { type: 'toggle'; default: boolean })
+  | (BaseControl & { type: 'select'; options: { value: string; label: string }[]; default: string })
+  | (BaseControl & { type: 'color'; palette: string[]; default: string; allowCustom?: boolean })
+  | (BaseControl & { type: 'colorPicker'; default: string })
+  | (BaseControl & { type: 'radio'; options: { value: string; label: string }[]; default: string })
+  | (BaseControl & { type: 'text'; default: string; placeholder?: string; maxLength?: number })
+  | (BaseControl & { type: 'textarea'; default: string; placeholder?: string; maxLength?: number; rows?: number })
+  | (BaseControl & { type: 'fontFamily'; default: string });
 
 export type BioThemeMeta = {
   key: string;
@@ -70,4 +79,34 @@ export function getThemeSettings(profile: BioProfile | any, themeKey: string, co
   const defaults: Record<string, any> = {};
   for (const c of controls) defaults[c.key] = (c as any).default;
   return { ...defaults, ...stored };
+}
+
+export type FontOption = {
+  value: string;
+  label: string;
+  stack: string;
+  category: 'sans' | 'serif' | 'mono' | 'display';
+};
+
+export const CURATED_FONTS: FontOption[] = [
+  { value: 'inter', label: 'Inter', stack: 'var(--font-inter), system-ui, sans-serif', category: 'sans' },
+  { value: 'grotesk', label: 'Space Grotesk', stack: 'var(--font-space-grotesk), system-ui, sans-serif', category: 'sans' },
+  { value: 'dmsans', label: 'DM Sans', stack: 'var(--font-dmsans), system-ui, sans-serif', category: 'sans' },
+  { value: 'manrope', label: 'Manrope', stack: 'var(--font-manrope), system-ui, sans-serif', category: 'sans' },
+  { value: 'archivo', label: 'Archivo Black', stack: 'var(--font-archivo-black), Impact, sans-serif', category: 'display' },
+  { value: 'syne', label: 'Syne', stack: 'var(--font-syne), sans-serif', category: 'display' },
+  { value: 'bricolage', label: 'Bricolage Grotesque', stack: 'var(--font-bricolage), sans-serif', category: 'display' },
+  { value: 'playfair', label: 'Playfair Display', stack: 'var(--font-playfair), Georgia, serif', category: 'serif' },
+  { value: 'fraunces', label: 'Fraunces', stack: 'var(--font-fraunces), Georgia, serif', category: 'serif' },
+  { value: 'cormorant', label: 'Cormorant Garamond', stack: 'var(--font-cormorant), Georgia, serif', category: 'serif' },
+  { value: 'dmserif', label: 'DM Serif Display', stack: 'var(--font-dmserif), Georgia, serif', category: 'serif' },
+  { value: 'jetbrains', label: 'JetBrains Mono', stack: 'var(--font-jetbrains), ui-monospace, monospace', category: 'mono' },
+  { value: 'ibmplex', label: 'IBM Plex Mono', stack: 'var(--font-ibmplex), ui-monospace, monospace', category: 'mono' },
+  { value: 'system', label: 'System UI', stack: 'system-ui, -apple-system, sans-serif', category: 'sans' },
+];
+
+export function getFontStack(value: string | undefined | null, fallback?: string): string {
+  if (!value) return fallback || 'system-ui, sans-serif';
+  const f = CURATED_FONTS.find(x => x.value === value);
+  return f ? f.stack : (fallback || 'system-ui, sans-serif');
 }

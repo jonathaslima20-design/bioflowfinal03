@@ -3,7 +3,7 @@
 import { ArrowUpRight } from 'lucide-react';
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const agencyMeta: BioThemeMeta = {
@@ -69,6 +69,10 @@ export const agencyMeta: BioThemeMeta = {
     { key: 'liveBadge', label: 'Badge do avatar', type: 'text', default: 'LIVE', maxLength: 10, group: 'Textos' },
     { key: 'accentCustom', label: 'Cor de destaque (personalizada)', type: 'colorPicker', default: '#BEF264', group: 'Cores' },
     { key: 'useAccentCustom', label: 'Usar cor personalizada de destaque', type: 'toggle', default: false, group: 'Cores' },
+    { key: 'titleFontFamily', label: 'Fonte curada do título', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: ALL WORKS RESERVED', maxLength: 60, group: 'Textos' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
   ],
 };
 
@@ -102,10 +106,13 @@ export function AgencyTheme({ profile, links, socials, videos, banners, track }:
   const t = (a: string, b: string | null) => track?.(a, b);
 
   const serifFamily = 'var(--font-playfair), Georgia, serif';
-  const sansFamily = 'var(--font-inter), "Helvetica Neue", Arial, sans-serif';
+  const sansFamily = getFontStack(s.bodyFont, 'var(--font-inter), "Helvetica Neue", Arial, sans-serif');
   const monoFamily = 'ui-monospace, "SF Mono", Menlo, monospace';
 
-  const titleFamily = s.titleFont === 'serif' ? serifFamily
+  const curatedTitle = s.titleFontFamily && s.titleFontFamily !== 'inter' ? getFontStack(s.titleFontFamily, sansFamily) : null;
+  const titleFamily = curatedTitle
+    ? curatedTitle
+    : s.titleFont === 'serif' ? serifFamily
     : s.titleFont === 'mono' ? monoFamily
     : s.titleFont === 'mix' ? serifFamily
     : sansFamily;
@@ -223,7 +230,7 @@ export function AgencyTheme({ profile, links, socials, videos, banners, track }:
             </p>
           )}
 
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className="mt-6 flex gap-5 flex-wrap">
               {socials.map((soc: any) => {
                 const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];
@@ -381,7 +388,7 @@ export function AgencyTheme({ profile, links, socials, videos, banners, track }:
           style={{ borderColor: `${text}30`, color: text, fontFamily: monoFamily }}
         >
           <span>© {new Date().getFullYear()}</span>
-          <span>ALL WORKS RESERVED</span>
+          <span>{(s.footerText && s.footerText.trim()) || 'ALL WORKS RESERVED'}</span>
         </div>
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
       </div>

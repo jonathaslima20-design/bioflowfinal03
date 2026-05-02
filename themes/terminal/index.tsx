@@ -2,7 +2,7 @@
 
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const terminalMeta: BioThemeMeta = {
@@ -38,6 +38,10 @@ export const terminalMeta: BioThemeMeta = {
     { key: 'useAccentCustom', label: 'Usar cor personalizada', type: 'toggle', default: false, group: 'Cores' },
     { key: 'caretCustom', label: 'Cor do caret (hex livre)', type: 'colorPicker', default: '#34D399', group: 'Cores' },
     { key: 'useCaretCustom', label: 'Usar caret personalizado', type: 'toggle', default: false, group: 'Cores' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'jetbrains', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'jetbrains', group: 'Tipografia' },
+    { key: 'footerText', label: 'Texto do rodapé (após prompt)', type: 'text', default: '', placeholder: 'Ex: -- EOF --', maxLength: 60, group: 'Textos' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
   ],
 };
 
@@ -58,7 +62,7 @@ export function TerminalTheme({ profile, links, socials, videos, banners, track 
   const asciiContent = (s.asciiBanner && s.asciiBanner.trim()) ? s.asciiBanner : defaultAscii;
 
   return (
-    <div className="min-h-screen pt-[72px] pb-24 px-4" style={{ backgroundColor: bg, color: text, fontFamily: '"JetBrains Mono", "Fira Code", ui-monospace, monospace' }}>
+    <div className="min-h-screen pt-[72px] pb-24 px-4" style={{ backgroundColor: bg, color: text, fontFamily: getFontStack(s.bodyFont, '"JetBrains Mono", "Fira Code", ui-monospace, monospace') }}>
       <div className="max-w-md mx-auto rounded-lg overflow-hidden" style={{ border: '1px solid #ffffff15', boxShadow: '0 20px 50px rgba(0,0,0,0.4)' }}>
         <div className="flex items-center gap-2 px-3 py-2 border-b" style={{ background: '#0006', borderColor: '#ffffff10' }}>
           <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
@@ -81,12 +85,12 @@ export function TerminalTheme({ profile, links, socials, videos, banners, track 
               {profile.avatar_url && <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />}
             </div>
             <div>
-              {profile.display_name && <div style={{ color: caret, fontWeight: 700 }}>{profile.display_name}</div>}
+              {profile.display_name && <div style={{ color: caret, fontWeight: 700, fontFamily: getFontStack(s.titleFont, 'inherit') }}>{profile.display_name}</div>}
               {profile.bio && <div className="mt-1 opacity-85 text-xs">&quot;{profile.bio}&quot;</div>}
             </div>
           </div>
 
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className="mb-4">
               <div><span style={{ color: accent }}>{s.prompt} </span><span className="opacity-80">{s.socialsCmd || 'cat socials.json'}</span></div>
               <div className="ml-3 mt-1 text-xs opacity-85">
@@ -142,6 +146,9 @@ export function TerminalTheme({ profile, links, socials, videos, banners, track 
           ))}
 
           <div className="mt-4"><span style={{ color: accent }}>{s.prompt} </span><span className="term-caret" style={{ background: caret }} /></div>
+          {s.footerText && s.footerText.trim() && (
+            <div className="mt-3 opacity-60 text-xs">{s.footerText}</div>
+          )}
         </div>
       </div>
 

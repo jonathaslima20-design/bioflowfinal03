@@ -3,7 +3,7 @@
 import { ExternalLink } from 'lucide-react';
 import { SOCIALS_BY_KEY } from '@/lib/socials';
 import type { BioThemeProps, BioThemeMeta } from '@/themes/types';
-import { getThemeSettings } from '@/themes/types';
+import { getThemeSettings, getFontStack } from '@/themes/types';
 import { BioflowzyBadge } from '@/components/bio/BioflowzyBadge';
 
 export const prismMeta: BioThemeMeta = {
@@ -36,6 +36,10 @@ export const prismMeta: BioThemeMeta = {
     { key: 'accentCustom', label: 'Cor de destaque (hex livre)', type: 'colorPicker', default: '#A5F3FC', group: 'Holografico' },
     { key: 'useAccentCustom', label: 'Usar cor de destaque personalizada', type: 'toggle', default: false, group: 'Holografico' },
     { key: 'tagline', label: 'Frase abaixo do nome', type: 'text', default: '', placeholder: 'Ex: Holographic Creator', maxLength: 80, group: 'Textos' },
+    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: Crafted in light', maxLength: 80, group: 'Textos' },
+    { key: 'titleFont', label: 'Fonte do título', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
+    { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos' },
   ],
 };
 
@@ -53,7 +57,7 @@ export function PrismTheme({ profile, links, socials, videos, banners, track }: 
   const iridescent = `linear-gradient(135deg, ${accent}cc, ${secondary}cc, #FDE68Acc, ${accent}cc)`;
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: bg, color: text }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: bg, color: text, fontFamily: getFontStack(s.bodyFont, 'system-ui') }}>
       <div className="absolute inset-0 pointer-events-none prism-bg" aria-hidden
         style={{ background: `conic-gradient(from 0deg at 50% 30%, ${accent}33, ${secondary}33, #FDE68A22, ${accent}33)`, filter: 'blur(90px)', opacity: s.shimmer / 100 }} />
       {s.grain && <div className="absolute inset-0 pointer-events-none prism-grain" aria-hidden />}
@@ -68,6 +72,7 @@ export function PrismTheme({ profile, links, socials, videos, banners, track }: 
           </div>
           {profile.display_name && (
             <h1 className="mt-6 text-4xl font-bold tracking-tight prism-title" style={{
+              fontFamily: getFontStack(s.titleFont, 'system-ui'),
               backgroundImage: iridescent,
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
@@ -79,7 +84,7 @@ export function PrismTheme({ profile, links, socials, videos, banners, track }: 
           )}
           {profile.bio && <p className="mt-3 text-sm opacity-80 max-w-xs leading-relaxed">{profile.bio}</p>}
 
-          {socials?.length > 0 && (
+          {s.showSocials !== false && socials?.length > 0 && (
             <div className="mt-6 flex gap-2 flex-wrap justify-center">
               {socials.map((soc: any) => {
                 const meta = SOCIALS_BY_KEY[(soc.platform || '').toLowerCase()];
@@ -127,6 +132,9 @@ export function PrismTheme({ profile, links, socials, videos, banners, track }: 
           ))}
         </div>
 
+        {s.footerText && s.footerText.trim() && (
+          <div className="mt-8 text-center text-xs tracking-widest opacity-70">{s.footerText}</div>
+        )}
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
       </div>
 
