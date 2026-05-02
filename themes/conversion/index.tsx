@@ -82,7 +82,6 @@ export const conversionMeta: BioThemeMeta = {
     { key: 'bodyFont', label: 'Fonte do corpo', type: 'fontFamily', default: 'inter', group: 'Tipografia' },
     { key: 'showUrgency', label: 'Exibir barra de urgência', type: 'toggle', default: true, group: 'Elementos' },
     { key: 'showSocials', label: 'Exibir redes sociais', type: 'toggle', default: true, group: 'Elementos' },
-    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: Garantia de 7 dias', maxLength: 80, group: 'Textos' },
     { key: 'starColor', label: 'Cor das estrelas', type: 'colorPicker', default: '#FACC15', group: 'Cores' },
   ],
 };
@@ -354,9 +353,6 @@ export function ConversionTheme({ profile, links, socials, videos, banners, trac
             </div>
           ))}
         </div>
-        {s.footerText && s.footerText.trim() && (
-          <div className="mt-6 text-center text-xs font-semibold" style={{ color: text, opacity: 0.7 }}>{s.footerText}</div>
-        )}
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
       </div>
 

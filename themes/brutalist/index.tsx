@@ -31,8 +31,6 @@ export const brutalistMeta: BioThemeMeta = {
     { key: 'borderColor', label: 'Cor da borda', type: 'colorPicker', default: '#000000', group: 'Cores', category: 'cores' },
     { key: 'shadowColor', label: 'Cor da sombra', type: 'colorPicker', default: '#000000', group: 'Cores', category: 'cores' },
     { key: 'cardRadius', label: 'Raio dos cards', type: 'slider', min: 0, max: 24, step: 2, suffix: 'px', default: 0, group: 'Layout', category: 'layout' },
-    { key: 'tagline', label: 'Frase abaixo do nome', type: 'text', default: '', placeholder: 'Ex: Designer brutalista', maxLength: 80, group: 'Textos', category: 'textos' },
-    { key: 'footerText', label: 'Texto do rodapé', type: 'text', default: '', placeholder: 'Ex: Made with love', maxLength: 60, group: 'Textos', category: 'textos' },
     { key: 'showSocials', label: 'Mostrar redes sociais', type: 'toggle', default: true, group: 'Elementos', category: 'layout' },
   ],
 };
@@ -62,9 +60,6 @@ export function BrutalistTheme({ profile, links, socials, videos, banners, track
             <h1 className="text-3xl mt-4" style={{ color: profile.text_color, fontFamily: titleFF }}>
               {profile.display_name}
             </h1>
-          )}
-          {s.tagline && s.tagline.trim() && (
-            <div className="mt-1 text-xs font-bold uppercase tracking-widest" style={{ color: profile.button_color }}>{s.tagline}</div>
           )}
           {profile.bio && <p className="mt-3 max-w-xs" style={{ color: profile.text_color }}>{profile.bio}</p>}
 
@@ -155,12 +150,6 @@ export function BrutalistTheme({ profile, links, socials, videos, banners, track
             </div>
           ))}
         </div>
-
-        {s.footerText && s.footerText.trim() && (
-          <div className="mt-8 text-center text-xs font-bold uppercase tracking-widest" style={{ color: profile.text_color, opacity: 0.7 }}>
-            {s.footerText}
-          </div>
-        )}
 
         {!profile.is_pro && <BioflowzyBadge bgColor={profile.bg_color} />}
         <div aria-hidden className="h-16" />
