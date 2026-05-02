@@ -51,7 +51,9 @@ export type ControlDef =
   | (BaseControl & { type: 'radio'; options: { value: string; label: string }[]; default: string })
   | (BaseControl & { type: 'text'; default: string; placeholder?: string; maxLength?: number })
   | (BaseControl & { type: 'textarea'; default: string; placeholder?: string; maxLength?: number; rows?: number })
-  | (BaseControl & { type: 'fontFamily'; default: string });
+  | (BaseControl & { type: 'fontFamily'; default: string })
+  | (BaseControl & { type: 'coreColor'; field: 'bg_color' | 'button_color' | 'text_color'; palette: string[]; default: string })
+  | (BaseControl & { type: 'coreNumber'; field: 'avatar_size' | 'border_width' | 'shadow_offset'; min: number; max: number; step?: number; suffix?: string; default: number });
 
 export type BioThemeMeta = {
   key: string;
@@ -77,7 +79,10 @@ export function getThemeSettings(profile: BioProfile | any, themeKey: string, co
     ? (profile.theme_settings[themeKey] || {})
     : {};
   const defaults: Record<string, any> = {};
-  for (const c of controls) defaults[c.key] = (c as any).default;
+  for (const c of controls) {
+    if (c.type === 'coreColor' || c.type === 'coreNumber') continue;
+    defaults[c.key] = (c as any).default;
+  }
   return { ...defaults, ...stored };
 }
 

@@ -73,16 +73,35 @@ export default function CustomizePage() {
 
   async function resetThemeGroup(themeKey: string, group: string) {
     const theme = getTheme(themeKey);
-    const groupKeys = (theme.meta.controls || []).filter(c => (c.group || 'Ajustes') === group).map(c => c.key);
+    const groupControls = (theme.meta.controls || []).filter(c => (c.group || 'Ajustes') === group);
     const current = (profile?.theme_settings && typeof profile.theme_settings === 'object') ? profile.theme_settings : {};
     const themeSet = { ...(current[themeKey] || {}) };
-    for (const k of groupKeys) delete themeSet[k];
+    const corePatch: any = {};
+    for (const c of groupControls) {
+      if (c.type === 'coreColor' || c.type === 'coreNumber') {
+        corePatch[c.field] = (c as any).default;
+      } else {
+        delete themeSet[c.key];
+      }
+    }
     const nextSettings = { ...current, [themeKey]: themeSet };
-    const next = { ...profile, theme_settings: nextSettings };
+    const patch = { ...corePatch, theme_settings: nextSettings };
+    const next = { ...profile, ...patch };
     setProfile(next);
-    await supabase.from('profiles').update({ theme_settings: nextSettings }).eq('id', profileId);
+    await supabase.from('profiles').update(patch).eq('id', profileId);
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
+  }
+
+  function updateCoreField(field: string, value: any) {
+    const next = { ...profile, [field]: value };
+    setProfile(next);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      await supabase.from('profiles').update({ [field]: value }).eq('id', profileId);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
+    }, 300);
   }
 
   async function applyTheme(themeKey: string) {
@@ -134,7 +153,6 @@ export default function CustomizePage() {
   if (!profile) return <div>Carregando...</div>;
 
   const activeTheme = getTheme(activeKey);
-  const activePalettes = activeTheme.meta.palettes;
   const themeControls = activeTheme.meta.controls || [];
   const themeValues = (profile.theme_settings && typeof profile.theme_settings === 'object')
     ? (profile.theme_settings[activeKey] || {})
@@ -178,58 +196,21 @@ export default function CustomizePage() {
           </div>
         </Section>
 
-        <Section title="Fundo">
-          <Swatches palette={activePalettes.bg} value={profile.bg_color} onChange={(c) => update({ bg_color: c })} />
-        </Section>
-
-        <Section title="Cor do botao / destaque">
-          <Swatches palette={activePalettes.accent} value={profile.button_color} onChange={(c) => update({ button_color: c })} />
-        </Section>
-
-        <Section title="Cor do texto">
-          <Swatches palette={activePalettes.text} value={profile.text_color} onChange={(c) => update({ text_color: c })} />
-        </Section>
-
-        {activeKey === 'brutalist' && (
-          <>
-            <Section title="Espessura da borda">
-              <div className="flex gap-3">
-                {[2, 3, 4, 5].map(w => (
-                  <button key={w} onClick={() => update({ border_width: w })} className={`brutal-btn px-4 py-2 ${profile.border_width === w ? 'bg-bioyellow' : 'bg-white'}`}>{w}px</button>
-                ))}
-              </div>
-            </Section>
-            <Section title="Intensidade da sombra">
-              <div className="flex gap-3">
-                {[0, 2, 4, 6, 8].map(w => (
-                  <button key={w} onClick={() => update({ shadow_offset: w })} className={`brutal-btn px-4 py-2 ${profile.shadow_offset === w ? 'bg-bioyellow' : 'bg-white'}`}>{w}px</button>
-                ))}
-              </div>
-            </Section>
-          </>
-        )}
-
-        <Section title="Tamanho do avatar">
-          <div className="flex items-center gap-4">
-            <input
-              type="range"
-              min={60}
-              max={200}
-              step={2}
-              value={profile.avatar_size ?? 90}
-              onChange={(e) => update({ avatar_size: Number(e.target.value) })}
-              className="flex-1 accent-black"
-            />
-            <span className="font-bold text-sm w-14 text-right">{profile.avatar_size ?? 90}px</span>
-          </div>
-        </Section>
-
         {themeControls.length > 0 && (
           <Section title={`Ajustes de ${activeTheme.meta.name}`}>
             <ThemeControls
               controls={themeControls}
               values={themeValues}
+              coreValues={{
+                bg_color: profile.bg_color,
+                button_color: profile.button_color,
+                text_color: profile.text_color,
+                avatar_size: profile.avatar_size,
+                border_width: profile.border_width,
+                shadow_offset: profile.shadow_offset,
+              }}
               onChange={(k, v) => updateThemeSetting(activeKey, k, v)}
+              onCoreChange={updateCoreField}
               onReset={() => resetThemeSettings(activeKey)}
               onResetGroup={(g) => resetThemeGroup(activeKey, g)}
             />
@@ -279,18 +260,3 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Swatches({ palette, value, onChange }: { palette: string[]; value: string; onChange: (c: string) => void }) {
-  return (
-    <div className="flex flex-wrap gap-3">
-      {palette.map(c => (
-        <button
-          key={c}
-          onClick={() => onChange(c)}
-          className={`w-10 h-10 brutal-border ${value === c ? 'brutal-shadow' : ''}`}
-          style={{ backgroundColor: c }}
-          aria-label={c}
-        />
-      ))}
-    </div>
-  );
-}

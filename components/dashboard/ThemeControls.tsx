@@ -8,7 +8,9 @@ import { CURATED_FONTS } from '@/themes/types';
 type Props = {
   controls: ControlDef[];
   values: Record<string, any>;
+  coreValues?: Record<string, any>;
   onChange: (key: string, value: any) => void;
+  onCoreChange?: (field: string, value: any) => void;
   onReset: () => void;
   onResetGroup?: (group: string) => void;
 };
@@ -24,7 +26,8 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 function inferCategory(c: ControlDef): string {
   if ((c as any).category) return (c as any).category;
-  if (c.type === 'color' || c.type === 'colorPicker') return 'cores';
+  if (c.type === 'color' || c.type === 'colorPicker' || c.type === 'coreColor') return 'cores';
+  if (c.type === 'coreNumber') return 'layout';
   if (c.type === 'fontFamily') return 'tipografia';
   if (c.type === 'text' || c.type === 'textarea') return 'textos';
   const g = (c.group || '').toLowerCase();
@@ -36,7 +39,21 @@ function inferCategory(c: ControlDef): string {
   return 'geral';
 }
 
-export function ThemeControls({ controls, values, onChange, onReset, onResetGroup }: Props) {
+export function ThemeControls({ controls, values, coreValues, onChange, onCoreChange, onReset, onResetGroup }: Props) {
+  function getValue(c: ControlDef): any {
+    if (c.type === 'coreColor' || c.type === 'coreNumber') {
+      const v = coreValues?.[c.field];
+      return v !== undefined && v !== null ? v : (c as any).default;
+    }
+    return values[c.key] ?? (c as any).default;
+  }
+  function handleChange(c: ControlDef, v: any) {
+    if (c.type === 'coreColor' || c.type === 'coreNumber') {
+      onCoreChange?.(c.field, v);
+    } else {
+      onChange(c.key, v);
+    }
+  }
   const [query, setQuery] = useState('');
   const [activeCat, setActiveCat] = useState<string>('all');
 
@@ -112,7 +129,7 @@ export function ThemeControls({ controls, values, onChange, onReset, onResetGrou
           </div>
           <div className="flex flex-col gap-4">
             {items.map(c => (
-              <Control key={c.key} def={c} value={values[c.key] ?? (c as any).default} onChange={(v) => onChange(c.key, v)} />
+              <Control key={c.key} def={c} value={getValue(c)} onChange={(v) => handleChange(c, v)} />
             ))}
           </div>
         </div>
@@ -139,6 +156,76 @@ function CategoryChip({ label, active, onClick }: { label: string; active: boole
 }
 
 function Control({ def, value, onChange }: { def: ControlDef; value: any; onChange: (v: any) => void }) {
+  if (def.type === 'coreColor') {
+    const inPalette = def.palette.includes(value);
+    return (
+      <div className="text-xs font-bold">
+        <div className="mb-2">{def.label}</div>
+        <div className="flex flex-wrap gap-2 items-center">
+          {def.palette.map(c => (
+            <button
+              key={c}
+              onClick={() => onChange(c)}
+              className={`w-9 h-9 brutal-border ${value === c ? 'brutal-shadow' : ''}`}
+              style={{ backgroundColor: c }}
+              aria-label={c}
+            />
+          ))}
+          <label
+            className={`relative w-9 h-9 brutal-border cursor-pointer overflow-hidden ${!inPalette ? 'brutal-shadow' : ''}`}
+            style={{ backgroundColor: !inPalette ? value : undefined }}
+            title="Cor personalizada"
+          >
+            <input
+              type="color"
+              value={typeof value === 'string' && value.startsWith('#') ? value.slice(0, 7) : '#000000'}
+              onChange={(e) => onChange(e.target.value)}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            />
+            {inPalette && (
+              <span
+                aria-hidden
+                className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-black"
+                style={{ background: 'conic-gradient(from 0deg, #f87171, #fbbf24, #34d399, #60a5fa, #f472b6, #f87171)' }}
+              >
+                +
+              </span>
+            )}
+          </label>
+          {!inPalette && (
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              className="brutal-input px-2 py-1 text-[11px] font-mono w-24 uppercase"
+              maxLength={9}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (def.type === 'coreNumber') {
+    return (
+      <label className="block">
+        <div className="flex items-center justify-between text-xs font-bold mb-1">
+          <span>{def.label}</span>
+          <span className="tabular-nums text-black/70">{value}{def.suffix || ''}</span>
+        </div>
+        <input
+          type="range"
+          min={def.min}
+          max={def.max}
+          step={def.step || 1}
+          value={Number(value)}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="w-full accent-black"
+        />
+      </label>
+    );
+  }
+
   if (def.type === 'slider') {
     return (
       <label className="block">
