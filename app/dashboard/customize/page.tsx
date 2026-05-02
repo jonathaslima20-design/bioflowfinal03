@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { BioPreview } from '@/components/dashboard/BioPreview';
 import { THEMES, getTheme } from '@/themes/registry';
 import { ThemeMockup } from '@/components/themes/ThemeMockup';
 import { ThemeControls } from '@/components/dashboard/ThemeControls';
-import { ThemePresetManager } from '@/components/dashboard/ThemePresetManager';
 import { Check } from 'lucide-react';
 
 export default function CustomizePage() {
@@ -116,39 +115,7 @@ export default function CustomizePage() {
     });
   }
 
-  async function applySnapshot(snap: any) {
-    if (!snap) return;
-    const patch: any = {};
-    if (snap.theme) patch.theme = snap.theme;
-    if (snap.bg_color) patch.bg_color = snap.bg_color;
-    if (snap.button_color) patch.button_color = snap.button_color;
-    if (snap.text_color) patch.text_color = snap.text_color;
-    if (typeof snap.border_width === 'number') patch.border_width = snap.border_width;
-    if (typeof snap.shadow_offset === 'number') patch.shadow_offset = snap.shadow_offset;
-    if (typeof snap.avatar_size === 'number') patch.avatar_size = snap.avatar_size;
-    if (snap.theme_settings && typeof snap.theme_settings === 'object') patch.theme_settings = snap.theme_settings;
-    const next = { ...profile, ...patch };
-    setProfile(next);
-    await supabase.from('profiles').update(patch).eq('id', profileId);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1500);
-  }
-
   const activeKey = profile?.theme || 'brutalist';
-
-  const snapshot = useMemo(() => {
-    if (!profile) return null;
-    return {
-      theme: profile.theme,
-      bg_color: profile.bg_color,
-      button_color: profile.button_color,
-      text_color: profile.text_color,
-      border_width: profile.border_width,
-      shadow_offset: profile.shadow_offset,
-      avatar_size: profile.avatar_size,
-      theme_settings: profile.theme_settings || {},
-    };
-  }, [profile]);
 
   if (!profile) return <div>Carregando...</div>;
 
@@ -216,20 +183,6 @@ export default function CustomizePage() {
             />
           </Section>
         )}
-
-        <Section title="Presets do tema">
-          <p className="text-xs font-bold text-black/60 mb-3">
-            Salve combinações do tema <span className="uppercase">{activeTheme.meta.name}</span> e reaplique com um clique.
-          </p>
-          {snapshot && (
-            <ThemePresetManager
-              profileId={profileId}
-              themeKey={activeKey}
-              snapshot={snapshot}
-              onApply={applySnapshot}
-            />
-          )}
-        </Section>
 
         {saved && <div className="mt-4 inline-block brutal-card px-4 py-2 bg-biolime font-bold">Salvo!</div>}
       </div>
