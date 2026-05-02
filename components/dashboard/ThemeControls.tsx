@@ -57,7 +57,7 @@ export function ThemeControls({ controls, values, coreValues, onChange, onCoreCh
   const [query, setQuery] = useState('');
   const [activeCat, setActiveCat] = useState<string>('all');
 
-  const enriched = useMemo(() => controls.map(c => ({ c, cat: inferCategory(c) })), [controls]);
+  const enriched = useMemo(() => controls.filter(c => c.type !== 'colorPicker').map(c => ({ c, cat: inferCategory(c) })), [controls]);
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -311,33 +311,7 @@ function Control({ def, value, onChange }: { def: ControlDef; value: any; onChan
   }
 
   if (def.type === 'colorPicker') {
-    return (
-      <div className="text-xs font-bold">
-        <div className="mb-2">{def.label}</div>
-        <div className="flex items-center gap-2">
-          <label
-            className="relative w-10 h-10 brutal-border cursor-pointer overflow-hidden shrink-0"
-            style={{ backgroundColor: value }}
-            title="Escolher cor"
-          >
-            <input
-              type="color"
-              value={typeof value === 'string' && value.startsWith('#') ? value.slice(0, 7) : '#000000'}
-              onChange={(e) => onChange(e.target.value)}
-              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-            />
-          </label>
-          <input
-            type="text"
-            value={value ?? ''}
-            onChange={(e) => onChange(e.target.value)}
-            className="brutal-input px-2 py-2 text-xs font-mono uppercase flex-1 min-w-0"
-            maxLength={9}
-            placeholder="#000000"
-          />
-        </div>
-      </div>
-    );
+    return null;
   }
 
   if (def.type === 'text') {
