@@ -157,7 +157,6 @@ function CategoryChip({ label, active, onClick }: { label: string; active: boole
 
 function Control({ def, value, onChange }: { def: ControlDef; value: any; onChange: (v: any) => void }) {
   if (def.type === 'coreColor') {
-    const inPalette = def.palette.includes(value);
     return (
       <div className="text-xs font-bold">
         <div className="mb-2">{def.label}</div>
@@ -171,36 +170,6 @@ function Control({ def, value, onChange }: { def: ControlDef; value: any; onChan
               aria-label={c}
             />
           ))}
-          <label
-            className={`relative w-9 h-9 brutal-border cursor-pointer overflow-hidden ${!inPalette ? 'brutal-shadow' : ''}`}
-            style={{ backgroundColor: !inPalette ? value : undefined }}
-            title="Cor personalizada"
-          >
-            <input
-              type="color"
-              value={typeof value === 'string' && value.startsWith('#') ? value.slice(0, 7) : '#000000'}
-              onChange={(e) => onChange(e.target.value)}
-              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-            />
-            {inPalette && (
-              <span
-                aria-hidden
-                className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-black"
-                style={{ background: 'conic-gradient(from 0deg, #f87171, #fbbf24, #34d399, #60a5fa, #f472b6, #f87171)' }}
-              >
-                +
-              </span>
-            )}
-          </label>
-          {!inPalette && (
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              className="brutal-input px-2 py-1 text-[11px] font-mono w-24 uppercase"
-              maxLength={9}
-            />
-          )}
         </div>
       </div>
     );
@@ -323,8 +292,6 @@ function Control({ def, value, onChange }: { def: ControlDef; value: any; onChan
   }
 
   if (def.type === 'color') {
-    const allowCustom = def.allowCustom !== false;
-    const inPalette = def.palette.includes(value);
     return (
       <div className="text-xs font-bold">
         <div className="mb-2">{def.label}</div>
@@ -338,40 +305,6 @@ function Control({ def, value, onChange }: { def: ControlDef; value: any; onChan
               aria-label={c}
             />
           ))}
-          {allowCustom && (
-            <label
-              className={`relative w-8 h-8 brutal-border cursor-pointer overflow-hidden ${!inPalette ? 'brutal-shadow' : ''}`}
-              style={{ backgroundColor: !inPalette ? value : undefined }}
-              title="Cor personalizada"
-            >
-              <input
-                type="color"
-                value={typeof value === 'string' && value.startsWith('#') ? value.slice(0, 7) : '#000000'}
-                onChange={(e) => onChange(e.target.value)}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-              />
-              {inPalette && (
-                <span
-                  aria-hidden
-                  className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-black"
-                  style={{
-                    background: 'conic-gradient(from 0deg, #f87171, #fbbf24, #34d399, #60a5fa, #f472b6, #f87171)',
-                  }}
-                >
-                  +
-                </span>
-              )}
-            </label>
-          )}
-          {allowCustom && !inPalette && (
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              className="brutal-input px-2 py-1 text-[11px] font-mono w-24 uppercase"
-              maxLength={9}
-            />
-          )}
         </div>
       </div>
     );
